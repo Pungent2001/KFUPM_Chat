@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   Future<void> fetchData() async {
     final url =
-        'https://c104-2001-16a2-c0ba-36fa-1698-4f09-6d44-15f8.ngrok-free.app/';
+        'https://c104-2001-16a2-c0ba-36fa-1698-4f09-6d44-15f8.ngrok-free.app/api/';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
