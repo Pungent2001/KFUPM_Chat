@@ -282,9 +282,114 @@ class ConversationsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Conversations'),
       ),
-      body: const Center(
-        child: Text('Conversations Page (Placeholder)',
-            style: TextStyle(color: Colors.white)), // White text color
+      body: Column(
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              backgroundImage: AssetImage('assets/user1.jpg'),
+            ),
+            title: const Text('User 1'),
+            subtitle: const Text(''),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DMPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundImage: AssetImage('assets/user2.jpg'),
+            ),
+            title: const Text('User 2'),
+            subtitle: const Text(''),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DMPage()),
+              );
+            },
+          ),
+          // Add more ListTile widgets for other conversations
+        ],
+      ),
+    );
+  }
+}
+
+class DMPage extends StatefulWidget {
+  @override
+  _DMPageState createState() => _DMPageState();
+}
+
+class _DMPageState extends State<DMPage> {
+  final TextEditingController _textEditingController = TextEditingController();
+  final List<String> _messages = [];
+
+  void _sendMessage() {
+    setState(() {
+      _messages.add(_textEditingController.text);
+      _textEditingController.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Direct Message'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return Align(
+                  alignment: _messages[index].startsWith('You: ')
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: _messages[index].startsWith('You: ')
+                          ? Colors.blue
+                          : Colors.grey,
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: Text(
+                      _messages[index],
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textEditingController,
+                    decoration: const InputDecoration(
+                      hintText: 'Type a message...',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
