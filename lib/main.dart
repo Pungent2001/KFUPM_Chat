@@ -34,10 +34,13 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  Future<void> fetchData() async {
-    final url =
-        'https://c104-2001-16a2-c0ba-36fa-1698-4f09-6d44-15f8.ngrok-free.app/api/';
-    final response = await http.get(Uri.parse(url));
+  Future<void> getData() async {
+    const url =
+        'https://cbb5-2001-16a2-c0ba-36fa-b5c9-38a8-9199-3734.ngrok-free.app/api/getid/';
+    final response = await http.get(Uri.parse(url), headers: {
+      "Cookie":
+          "csrftoken=1p0i88V2qige9o6bWf2GesMLHdF5yQLa; sessionid=pv4wxcj827kpcg8dexb12m11ji5cbtmp"
+    });
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -48,6 +51,20 @@ class HomePage extends StatelessWidget {
       // If the server returns an error response, throw an exception
       throw Exception('Failed to load data');
     }
+  }
+
+  Future<http.Response> postData() {
+    return http.post(
+      Uri.parse(
+          'https://cbb5-2001-16a2-c0ba-36fa-b5c9-38a8-9199-3734.ngrok-free.app/api/login/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'username': 'username',
+        'password': 'kfupmchat',
+      }),
+    );
   }
 
   @override
@@ -67,14 +84,26 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                fetchData();
+                postData();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white, // White button color
                 foregroundColor: const Color.fromRGBO(
                     85, 138, 94, 1), // RGB(85,138,94) for button text
               ),
-              child: const Text('Fetch Data'),
+              child: const Text('POST Data'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                getData();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white, // White button color
+                foregroundColor: const Color.fromRGBO(
+                    85, 138, 94, 1), // RGB(85,138,94) for button text
+              ),
+              child: const Text('GET Data'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
