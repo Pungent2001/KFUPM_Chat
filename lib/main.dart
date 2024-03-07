@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -53,18 +55,25 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<http.Response> postData() {
-    return http.post(
-      Uri.parse(
-          'https://cbb5-2001-16a2-c0ba-36fa-b5c9-38a8-9199-3734.ngrok-free.app/api/login/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'username': 'username',
-        'password': 'kfupmchat',
-      }),
-    );
+  Future<List<String?>> postData() async {
+    const url =
+        'https://cbb5-2001-16a2-c0ba-36fa-b5c9-38a8-9199-3734.ngrok-free.app/api/login/';
+    final response = await http.post(Uri.parse(url), headers: {}, body: {
+      'username': 'username',
+      'password': 'kfupmchat',
+    });
+    final csrfToken =
+        response.headers['set-cookie']?.split(';')[0].split('=')[1];
+    final sessionId = response.headers['set-cookie']
+        ?.split(';')[4]
+        .split(',')[1]
+        .split('=')[1];
+
+    print(response.headers);
+    print('CSRF Token: $csrfToken');
+    print('Session-id= $sessionId');
+    return [csrfToken, sessionId];
+    //return the token and session in one list object
   }
 
   @override
@@ -148,9 +157,10 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _registerButtonEnabled = false;
 
   @override
