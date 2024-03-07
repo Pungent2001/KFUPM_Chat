@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+String usercrsfToken = '';
+String userSessionId = '';
 void main() {
   runApp(MyApp());
 }
@@ -36,13 +38,12 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  Future<void> getData() async {
+  Future<void> getData(sessionToken, sessionID) async {
+    print("csrftoken=$sessionToken; sessionid=$sessionID");
     const url =
         'https://cbb5-2001-16a2-c0ba-36fa-b5c9-38a8-9199-3734.ngrok-free.app/api/getid/';
-    final response = await http.get(Uri.parse(url), headers: {
-      "Cookie":
-          "csrftoken=1p0i88V2qige9o6bWf2GesMLHdF5yQLa; sessionid=pv4wxcj827kpcg8dexb12m11ji5cbtmp"
-    });
+    final response = await http.get(Uri.parse(url),
+        headers: {"Cookie": "csrftoken=$sessionToken; sessionid=$sessionID"});
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -68,12 +69,12 @@ class HomePage extends StatelessWidget {
         ?.split(';')[4]
         .split(',')[1]
         .split('=')[1];
-
+    usercrsfToken = csrfToken!;
+    userSessionId = sessionId!;
     print(response.headers);
     print('CSRF Token: $csrfToken');
     print('Session-id= $sessionId');
     return [csrfToken, sessionId];
-    //return the token and session in one list object
   }
 
   @override
@@ -105,7 +106,9 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                getData();
+                print('User CSRF Token: $usercrsfToken');
+                print('User Session ID: $userSessionId');
+                getData(usercrsfToken, userSessionId);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white, // White button color
