@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:kfupm_chat/group_page.dart';
+
+const apiURL =
+    'https://9100-2001-16a2-c0ba-36fa-2dfa-1051-df6b-349f.ngrok-free.app/';
 String usercrsfToken = '';
 String userSessionId = '';
 void main() {
@@ -38,10 +42,9 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  Future<void> getData(sessionToken, sessionID) async {
+  Future<void> getCookieData(sessionToken, sessionID) async {
     print("csrftoken=$sessionToken; sessionid=$sessionID");
-    const url =
-        'https://cbb5-2001-16a2-c0ba-36fa-b5c9-38a8-9199-3734.ngrok-free.app/api/getid/';
+    const url = '$apiURL/api/getid/';
     final response = await http.get(Uri.parse(url),
         headers: {"Cookie": "csrftoken=$sessionToken; sessionid=$sessionID"});
 
@@ -56,13 +59,30 @@ class HomePage extends StatelessWidget {
     }
   }
 
+  Future<void> getData(sessionToken, sessionID) async {
+    print("csrftoken=$sessionToken; sessionid=$sessionID");
+    const url = '$apiURL/api/getgroups/';
+    final response = await http.get(Uri.parse(url),
+        headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'});
+
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response, parse the JSON
+      final jsonData = jsonDecode(response.body);
+      print('JSON Data: $jsonData');
+      // Handle the JSON data as needed
+    } else {
+      // If the server returns an error response, throw an exception
+      throw Exception('Failed to load data');
+    }
+  }
+
   Future<List<String?>> postData() async {
-    const url =
-        'https://cbb5-2001-16a2-c0ba-36fa-b5c9-38a8-9199-3734.ngrok-free.app/api/login/';
+    const url = '$apiURL/api/login/';
     final response = await http.post(Uri.parse(url), headers: {}, body: {
       'username': 'username',
       'password': 'kfupmchat',
     });
+    print(response.body);
     final csrfToken =
         response.headers['set-cookie']?.split(';')[0].split('=')[1];
     final sessionId = response.headers['set-cookie']
@@ -108,6 +128,7 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 print('User CSRF Token: $usercrsfToken');
                 print('User Session ID: $userSessionId');
+                // getCookieData(usercrsfToken, userSessionId);
                 getData(usercrsfToken, userSessionId);
               },
               style: ElevatedButton.styleFrom(
@@ -298,9 +319,13 @@ class SignInPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => ConversationsPage()),
+                // );
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ConversationsPage()),
+                  MaterialPageRoute(builder: (context) => GroupPage()),
                 );
               },
               style: ElevatedButton.styleFrom(
