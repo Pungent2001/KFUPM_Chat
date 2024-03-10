@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'group_model.dart';
 import 'group_service.dart';
+import 'channel_page.dart'; // You will create this
 
 class GroupPage extends StatefulWidget {
   @override
@@ -36,10 +37,17 @@ class _GroupPageState extends State<GroupPage> {
               itemBuilder: (context, index) {
                 final group = groups[index];
                 return ListTile(
-                    title: Text(group.name),
-                    subtitle: Text(
-                      group.id.toString(),
-                    ));
+                  title: Text(group.name),
+                  subtitle: Text(group.id.toString()),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChannelPage(group: group),
+                      ),
+                    );
+                  },
+                );
               },
             );
           }
@@ -47,10 +55,4 @@ class _GroupPageState extends State<GroupPage> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: GroupPage(),
-  ));
 }

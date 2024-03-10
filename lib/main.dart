@@ -3,13 +3,40 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kfupm_chat/group_page.dart';
 
-const apiURL =
-    'https://9100-2001-16a2-c0ba-36fa-2dfa-1051-df6b-349f.ngrok-free.app/';
-String usercrsfToken = '';
-String userSessionId = '';
+setSession(userToken, userID) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (userToken != null) {
+    prefs.setString('usercrsfToken', userToken);
+  }
+  if (userID != null) {
+    prefs.setString('userSessionId', userID);
+  }
+}
+
+getSession() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? usercrsfToken = prefs.getString('usercrsfToken');
+  String? userSessionId = prefs.getString('userSessionId');
+  return [usercrsfToken, userSessionId];
+}
+
+setApiUrl() {
+  SharedPreferences.getInstance().then((prefs) {
+    prefs.setString('apiURL',
+        'https://fdac-2001-16a2-c0ba-36fa-f007-95c0-c17d-8a81.ngrok-free.app');
+  });
+}
+
+getApiUrl() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? apiURL = prefs.getString('apiURL');
+  print("#######API URL: $apiURL");
+  return apiURL;
+}
+
 void main() {
   runApp(MyApp());
 }
@@ -42,26 +69,10 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  Future<void> getCookieData(sessionToken, sessionID) async {
-    print("csrftoken=$sessionToken; sessionid=$sessionID");
-    const url = '$apiURL/api/getid/';
-    final response = await http.get(Uri.parse(url),
-        headers: {"Cookie": "csrftoken=$sessionToken; sessionid=$sessionID"});
-
-    if (response.statusCode == 200) {
-      // If the server returns a 200 OK response, parse the JSON
-      final jsonData = jsonDecode(response.body);
-      print('JSON Data: $jsonData');
-      // Handle the JSON data as needed
-    } else {
-      // If the server returns an error response, throw an exception
-      throw Exception('Failed to load data');
-    }
-  }
-
   Future<void> getData(sessionToken, sessionID) async {
     print("csrftoken=$sessionToken; sessionid=$sessionID");
-    const url = '$apiURL/api/getgroups/';
+    String apiLink = await getApiUrl() ?? '';
+    final url = '$apiLink/api/getid/';
     final response = await http.get(Uri.parse(url),
         headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'});
 
@@ -77,7 +88,9 @@ class HomePage extends StatelessWidget {
   }
 
   Future<List<String?>> postData() async {
-    const url = '$apiURL/api/login/';
+    setApiUrl();
+    final String apiLink = await getApiUrl() ?? '';
+    final url = '$apiLink/api/login/';
     final response = await http.post(Uri.parse(url), headers: {}, body: {
       'username': 'username',
       'password': 'kfupmchat',
@@ -89,11 +102,11 @@ class HomePage extends StatelessWidget {
         ?.split(';')[4]
         .split(',')[1]
         .split('=')[1];
-    usercrsfToken = csrfToken!;
-    userSessionId = sessionId!;
+    setSession(csrfToken, sessionId);
+
     print(response.headers);
-    print('CSRF Token: $csrfToken');
-    print('Session-id= $sessionId');
+    print('#######CSRF Token: $csrfToken');
+    print('#######Session-id= $sessionId');
     return [csrfToken, sessionId];
   }
 
@@ -125,11 +138,9 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                print('User CSRF Token: $usercrsfToken');
-                print('User Session ID: $userSessionId');
-                // getCookieData(usercrsfToken, userSessionId);
-                getData(usercrsfToken, userSessionId);
+              onPressed: () async {
+                var session = await getSession();
+                getData(session[0], session[1]);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white, // White button color
