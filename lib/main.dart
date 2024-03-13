@@ -1,8 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kfupm_chat/group_page.dart';
 import 'color_schemes.g.dart';
@@ -40,12 +38,11 @@ getApiUrl() async {
 }
 
 void main() {
-  setApiUrl();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -74,9 +71,27 @@ class HomePage extends StatelessWidget {
           children: [
             Image.network(
               'https://upload.wikimedia.org/wikipedia/ar/archive/3/37/20180719130502%21King_Fahd_University_of_Petroleum_%26_Minerals_Logo.png',
-              height: 150,
+              height: 300,
+            ),
+
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignInPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+              ),
+              child: const Text('Sign In'),
             ),
             const SizedBox(height: 20),
+
+            /// vvvvvvvvvvv REGISTRATION BUTTON vvvvvvvvvvv
+
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -90,20 +105,6 @@ class HomePage extends StatelessWidget {
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
               child: const Text('Register'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignInPage()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
-              child: const Text('Sign In'),
             ),
           ],
         ),
