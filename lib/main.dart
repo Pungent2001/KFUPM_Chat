@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kfupm_chat/group_page.dart';
@@ -57,6 +59,47 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  Future<void> getData(sessionToken, sessionID) async {
+    print("csrftoken=$sessionToken; sessionid=$sessionID");
+    String apiLink = await getApiUrl() ?? '';
+    final url = '$apiLink/api/getid/';
+    final response = await http.get(Uri.parse(url),
+        headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'});
+
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response, parse the JSON
+      final jsonData = jsonDecode(response.body);
+      print('JSON Data: $jsonData');
+      // Handle the JSON data as needed
+    } else {
+      // If the server returns an error response, throw an exception
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<List<String?>> postData() async {
+    setApiUrl();
+    final String apiLink = await getApiUrl() ?? '';
+    final url = '$apiLink/api/login/';
+    final response = await http.post(Uri.parse(url), headers: {}, body: {
+      'username': 'username',
+      'password': 'kfupmchat',
+    });
+    print(response.body);
+    final csrfToken =
+        response.headers['set-cookie']?.split(';')[0].split('=')[1];
+    final sessionId = response.headers['set-cookie']
+        ?.split(';')[4]
+        .split(',')[1]
+        .split('=')[1];
+    setSession(csrfToken, sessionId);
+
+    print(response.headers);
+    print('#######CSRF Token: $csrfToken');
+    print('#######Session-id= $sessionId');
+    return [csrfToken, sessionId];
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -73,7 +116,7 @@ class HomePage extends StatelessWidget {
               'https://upload.wikimedia.org/wikipedia/ar/archive/3/37/20180719130502%21King_Fahd_University_of_Petroleum_%26_Minerals_Logo.png',
               height: 300,
             ),
-
+            // vvvvvvvvvvvv LOGIN BUTTON vvvvvvvvvvvvvv
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -297,7 +340,7 @@ class SignInPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GroupPage()),
+                  MaterialPageRoute(builder: (context) => const GroupPage()),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -312,6 +355,3 @@ class SignInPage extends StatelessWidget {
     );
   }
 }
-
-// Since ConversationsPage, DMPage, and any other pages or widgets were not provided in the request,
-// make sure to apply similar changes: using theme.colorScheme for colors and not using any hardcoded values.
