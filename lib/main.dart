@@ -28,7 +28,7 @@ setApiUrl() {
   SharedPreferences.getInstance().then((prefs) {
     //Global Initiator for the API URL, has to be run on launch, and updated if the backend devs change the URL
     prefs.setString('apiURL',
-        'https://fdac-2001-16a2-c0ba-36fa-f007-95c0-c17d-8a81.ngrok-free.app');
+        'https://6c9a-2001-16a2-c0ba-36fa-6d1-333f-44fe-686c.ngrok-free.app');
   });
 }
 
@@ -173,7 +173,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    // vvvvvvvvvvvvvvv REGISTRATION PAGE vvvvvvvvvvvvvvvv
     return Scaffold(
       appBar: AppBar(
         title: const Text('Registration'),
@@ -190,6 +190,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(8.0),
+              //vvvvvvvvvvvvvvv Email Text field vvvvvvvvvvvvvvvv
               child: TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -203,6 +204,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
+              //vvvvvvvvvvvvvvv Password Text field vvvvvvvvvvvvvvvv
               child: TextField(
                 controller: _passwordController,
                 decoration: InputDecoration(
@@ -217,6 +219,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
+              //vvvvvvvvvvvvvvv Confirm Password Text field vvvvvvvvvvvvvvvv
               child: TextField(
                 controller: _confirmPasswordController,
                 decoration: InputDecoration(
@@ -230,6 +233,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               ),
             ),
             const SizedBox(height: 20),
+            //vvvvvvvvvvvvvvv Registration Button vvvvvvvvvvvvvvvv
             ElevatedButton(
               onPressed: _registerButtonEnabled ? _register : null,
               style: ElevatedButton.styleFrom(
@@ -244,6 +248,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
+//vvvvvvvvvvvvvvv Registration Button Logic vvvvvvvvvvvvvvvv
   void _updateRegisterButton() {
     setState(() {
       _registerButtonEnabled = _emailController.text.isNotEmpty &&
@@ -256,7 +261,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void _register() {
     // Registration logic would be implemented here
     final theme = Theme.of(context);
-
+//vvvvvvvvvvvvvvv PopUp Registration Box vvvvvvvvvvvvvvvv
     showDialog(
       context: context,
       builder: (_) => AlertDialog(

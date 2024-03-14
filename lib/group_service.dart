@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:kfupm_chat/channel_model.dart';
 import 'package:kfupm_chat/main.dart';
 import 'group_model.dart';
-import 'package:kfupm_chat/main.dart';
+// import 'package:kfupm_chat/main.dart';
 
 class GroupService {
   static Future<List<Group>> fetchGroups() async {
@@ -12,8 +12,8 @@ class GroupService {
     var session = await getSession();
     String sessionToken = session[0];
     String sessionID = session[1];
-    print("#######getting groups...");
-    print("#######csrftoken=$sessionToken; sessionid=$sessionID");
+    // print("#######getting groups...");
+    // print("#######csrftoken=$sessionToken; sessionid=$sessionID");
     final response = await http.get(Uri.parse(url),
         headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'});
 

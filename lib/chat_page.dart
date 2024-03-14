@@ -1,6 +1,7 @@
-import 'dart:async';
-import 'dart:convert';
+// ignore_for_file: library_private_types_in_public_api
 
+// import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -8,8 +9,7 @@ class ChatPage extends StatefulWidget {
   final String title;
   final WebSocketChannel channel;
 
-  ChatPage({Key? key, required this.title, required this.channel})
-      : super(key: key);
+  const ChatPage({super.key, required this.title, required this.channel});
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -21,14 +21,10 @@ class _ChatPageState extends State<ChatPage> {
 
   void _sendMessage() {
     if (_textController.text.isNotEmpty) {
-      // You might want to replace 'username' with the actual user's name and manage room ID dynamically if necessary.
-      final String username = 'username'; // Placeholder for actual username
-      final int roomId = 1; // Placeholder for actual room ID
-
       widget.channel.sink.add(json.encode({
         'message': _textController.text,
-        'username': username,
-        'room': roomId,
+        'username': 'username',
+        'room': 1,
       }));
 
       _textController.clear();
@@ -43,9 +39,13 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
       ),
       body: Column(
         children: <Widget>[
@@ -76,12 +76,13 @@ class _ChatPageState extends State<ChatPage> {
                 Expanded(
                   child: TextField(
                     controller: _textController,
-                    decoration: InputDecoration(hintText: 'Send a message'),
+                    decoration:
+                        const InputDecoration(hintText: 'Send a message'),
                     onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: _sendMessage,
                 ),
               ],

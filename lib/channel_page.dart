@@ -1,14 +1,16 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'group_model.dart';
 import 'channel_model.dart';
 import 'group_service.dart';
-import 'chat_page.dart'; // Import your ChatPage here
+import 'chat_page.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChannelPage extends StatefulWidget {
   final Group group;
 
-  ChannelPage({required this.group});
+  const ChannelPage({super.key, required this.group});
 
   @override
   _ChannelPageState createState() => _ChannelPageState();
@@ -25,15 +27,19 @@ class _ChannelPageState extends State<ChannelPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Channels for ${widget.group.name}'),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
       ),
       body: FutureBuilder<List<Channel>>(
         future: _channelsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
