@@ -3,14 +3,20 @@
 // import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatPage extends StatefulWidget {
   final String title;
   final WebSocketChannel channel;
+  final int channelId; // Add the channelId parameter
 
-  const ChatPage({super.key, required this.title, required this.channel});
-
+  const ChatPage({
+    super.key,
+    required this.title,
+    required this.channel,
+    required this.channelId, // Add the channelId parameter
+  });
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -18,13 +24,29 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final _textController = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
+  String _username = ''; // Add a variable for username
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  void _loadUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _username = prefs.getString('username') ??
+          'Unknown'; // Retrieve the username or default to 'Unknown'
+    });
+  }
 
   void _sendMessage() {
     if (_textController.text.isNotEmpty) {
       widget.channel.sink.add(json.encode({
         'message': _textController.text,
-        'username': 'username',
-        'room': 1,
+        'username': _username,
+        'room': widget.channelId
+            .toString(), // Use the channel ID as the room identifier
       }));
 
       _textController.clear();

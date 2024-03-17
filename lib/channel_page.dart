@@ -53,8 +53,13 @@ class _ChannelPageState extends State<ChannelPage> {
                   tileColor: theme.colorScheme.primaryContainer,
                   title: Text(channel.channelName),
                   subtitle: Text(channel.channelId.toString()),
-                  onTap: () async {
+                  onTap:
+                      //print the group id and channel id
+
+                      () async {
                     String apiUrl = await getApiUrl();
+                    print('Group ID: ${widget.group.id}');
+                    print('Channel ID: ${channel.channelId}');
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -64,6 +69,8 @@ class _ChannelPageState extends State<ChannelPage> {
                             Uri.parse(
                                 'wss://$apiUrl/ws/TextChannels/${widget.group.id}/${channel.channelId}/'),
                           ),
+                          channelId: channel
+                              .channelId, // Pass the channel ID to the ChatPage
                         ),
                       ),
                     );

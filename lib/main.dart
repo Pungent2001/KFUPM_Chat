@@ -331,6 +331,8 @@ class SignInPage extends StatelessWidget {
         ?.split(';')[4]
         .split(',')[1]
         .split('=')[1];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('username', username); // Save the username
     setSession(csrfToken, sessionId);
 
     print(response.headers);
