@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:kfupm_chat/main.dart';
 import 'group_model.dart';
 import 'channel_model.dart';
 import 'group_service.dart';
@@ -49,9 +50,11 @@ class _ChannelPageState extends State<ChannelPage> {
               itemBuilder: (context, index) {
                 final channel = channels[index];
                 return ListTile(
+                  tileColor: theme.colorScheme.primaryContainer,
                   title: Text(channel.channelName),
                   subtitle: Text(channel.channelId.toString()),
-                  onTap: () {
+                  onTap: () async {
+                    String apiUrl = await getApiUrl();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -59,7 +62,7 @@ class _ChannelPageState extends State<ChannelPage> {
                           title: channel.channelName,
                           channel: WebSocketChannel.connect(
                             Uri.parse(
-                                'wss://fdac-2001-16a2-c0ba-36fa-f007-95c0-c17d-8a81.ngrok-free.app/ws/TextChannels/${widget.group.id}/${channel.channelId}/'),
+                                'wss://9450-2001-16a2-c0da-3ebb-21-79b1-713d-bcde.ngrok-free.app/ws/TextChannels/${widget.group.id}/${channel.channelId}/'),
                           ),
                         ),
                       ),

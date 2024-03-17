@@ -8,12 +8,12 @@ import 'group_model.dart';
 class GroupService {
   static Future<List<Group>> fetchGroups() async {
     String apiLink = await getApiUrl() ?? '';
-    final url = '$apiLink/api/getgroups/';
+    final url = 'https://$apiLink/api/getgroups/';
     var session = await getSession();
     String sessionToken = session[0];
     String sessionID = session[1];
-    // print("#######getting groups...");
-    // print("#######csrftoken=$sessionToken; sessionid=$sessionID");
+    print("#######getting groups...");
+    print("#######csrftoken=$sessionToken; sessionid=$sessionID");
     final response = await http.get(Uri.parse(url),
         headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'});
 
@@ -38,14 +38,11 @@ class GroupService {
 
   static Future<List<Channel>> fetchTextChannels(int groupId) async {
     String apiLink = await getApiUrl() ?? '';
-    final url = '$apiLink/api/gettextchannels?group_id=$groupId';
+    final url = 'https://$apiLink/api/gettextchannels?group_id=$groupId';
     var session = await getSession();
     String sessionToken = session[0];
     String sessionID = session[1];
 
-    // final response = await http.get(Uri.parse(url),
-    //     headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'}
-    //     ,body: {"selected_group_id": 1});
     final response = await http.get(Uri.parse(url), headers: {
       "Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID',
       "selected-group-id": "1"

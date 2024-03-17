@@ -45,6 +45,7 @@ class _GroupPageState extends State<GroupPage> {
               itemBuilder: (context, index) {
                 final group = groups[index];
                 return ListTile(
+                  tileColor: theme.colorScheme.primaryContainer,
                   title: Text(group.name),
                   subtitle: Text(group.id.toString()),
                   onTap: () {
