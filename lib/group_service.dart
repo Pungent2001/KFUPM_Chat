@@ -45,7 +45,7 @@ class GroupService {
 
     final response = await http.get(Uri.parse(url), headers: {
       "Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID',
-      "selected-group-id": "1"
+      "selected-group-id": groupId.toString()
     });
     print("#######getting channels...");
     if (response.statusCode == 200) {

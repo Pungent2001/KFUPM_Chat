@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:kfupm_chat/main.dart';
 import 'group_model.dart';
 import 'group_service.dart';
 import 'channel_page.dart';
@@ -61,6 +62,17 @@ class _GroupPageState extends State<GroupPage> {
             );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseSelectionPage(),
+            ),
+          );
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

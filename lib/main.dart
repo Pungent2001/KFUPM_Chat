@@ -29,7 +29,7 @@ Future<bool?> setApiUrl() async {
   SharedPreferences.getInstance().then((prefs) {
     // Global Initiator for the API URL, has to be run on launch, and updated if the backend devs change the URL
     prefs.setString('apiURL',
-        '0c8e-2001-16a2-c0da-3ebb-9d8b-c5f8-752b-492a.ngrok-free.app');
+        '2fcb-2001-16a2-c0bb-583f-29d7-8902-24f1-2233.ngrok-free.app');
     print("###########api url set..");
     return true;
   });
@@ -463,7 +463,7 @@ class _CourseSelectionPageState extends State<CourseSelectionPage> {
         .where((entry) => entry.value == true)
         .map((entry) => entry.key.toString())
         .toList();
-    print("Enrolled Groups: $enrolledGroups");
+    print("#####Enrolled Groups: $enrolledGroups");
     var session = await getSession();
     String sessionToken = session[0];
     String sessionID = session[1];
@@ -471,10 +471,11 @@ class _CourseSelectionPageState extends State<CourseSelectionPage> {
       Uri.parse(url),
       headers: {
         "Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID',
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "X-CSRFToken": sessionToken
       },
       body: jsonEncode({
-        "enrolled_groups": ["2"],
+        "enrolled_groups": enrolledGroups,
       }),
     );
 
@@ -489,6 +490,7 @@ class _CourseSelectionPageState extends State<CourseSelectionPage> {
             TextButton(
               child: Text('OK'),
               onPressed: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).pop(); // Dismiss alert dialog
               },
             ),

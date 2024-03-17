@@ -62,7 +62,7 @@ class _ChannelPageState extends State<ChannelPage> {
                           title: channel.channelName,
                           channel: WebSocketChannel.connect(
                             Uri.parse(
-                                'wss://9450-2001-16a2-c0da-3ebb-21-79b1-713d-bcde.ngrok-free.app/ws/TextChannels/${widget.group.id}/${channel.channelId}/'),
+                                'wss://$apiUrl/ws/TextChannels/${widget.group.id}/${channel.channelId}/'),
                           ),
                         ),
                       ),
