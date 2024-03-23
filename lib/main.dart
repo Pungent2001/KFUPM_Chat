@@ -28,8 +28,7 @@ getSession() async {
 Future<bool?> setApiUrl() async {
   SharedPreferences.getInstance().then((prefs) {
     // Global Initiator for the API URL, has to be run on launch, and updated if the backend devs change the URL
-    prefs.setString('apiURL',
-        '2fcb-2001-16a2-c0bb-583f-29d7-8902-24f1-2233.ngrok-free.app');
+    prefs.setString('apiURL', 'wombat-star-tightly.ngrok-free.app');
     print("###########api url set..");
     return true;
   });
@@ -492,6 +491,7 @@ class _CourseSelectionPageState extends State<CourseSelectionPage> {
             TextButton(
               child: Text('OK'),
               onPressed: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
                 Navigator.of(context).pop(); // Dismiss alert dialog
               },
