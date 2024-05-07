@@ -34,6 +34,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    _loadUsername();
     _fetchApiUrl().then((url) {
       if (mounted) {
         setState(() {
@@ -70,22 +71,38 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _sendMessage(String text, {bool isImage = false}) {
-    if (text.isNotEmpty) {
-      var now = DateTime.now();
-      String formattedTime = DateFormat('yyyy-MM-dd – kk:mm').format(now);
+  void _sendMessage(String message) {
+    if (message.isNotEmpty) {
+      String username = "YourUsername"; // Retrieve the actual username
+      String time = DateTime.now().toIso8601String(); // Get current time
 
       widget.channel.sink.add(json.encode({
-        'message': text,
+        'message': message,
         'username': _username,
         'room': widget.channelId.toString(),
-        'time': formattedTime,
-        'isImage': isImage,
+        'time': time,
+        'isImage': false,
       }));
-
       _textController.clear();
     }
   }
+
+  // void _sendMessage(String text, {bool isImage = false}) {
+  //   if (text.isNotEmpty) {
+  //     var now = DateTime.now();
+  //     String formattedTime = DateFormat('yyyy-MM-dd – kk:mm').format(now);
+
+  //     widget.channel.sink.add(json.encode({
+  //       'message': text,
+  //       'username': _username,
+  //       'room': widget.channelId.toString(),
+  //       'time': formattedTime,
+  //       'isImage': isImage,
+  //     }));
+
+  //     _textController.clear();
+  //   }
+  // }
 
   void _uploadImage() async {
     final ImagePicker _picker = ImagePicker();
@@ -109,6 +126,11 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     widget.channel.sink.close();
     super.dispose();
+  }
+
+  String _formatTime(String isoTime) {
+    DateTime time = DateTime.parse(isoTime);
+    return DateFormat('yyyy-MM-dd – kk:mm').format(time);
   }
 
   @override
@@ -135,7 +157,7 @@ class _ChatPageState extends State<ChatPage> {
                   _messages.insert(0, {
                     'username': data['username'] ?? 'Unknown',
                     'message': data['message'],
-                    'time': data['time'] ?? '',
+                    'time': _formatTime(data['time']) ?? 'no time',
                     'isImage': isImage,
                   });
                 }

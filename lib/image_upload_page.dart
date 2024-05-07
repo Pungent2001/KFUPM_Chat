@@ -9,7 +9,7 @@ import 'package:kfupm_chat/main.dart';
 class ImageUploadPage extends StatelessWidget {
   final XFile imageFile;
   final int channelId;
-  final Function(String, {bool isImage}) sendImageCallback;
+  final Function(String) sendImageCallback;
 
   const ImageUploadPage({
     Key? key,
@@ -43,8 +43,7 @@ class ImageUploadPage extends StatelessWidget {
         print(
             "Uploaded image path: https://$apiUrl$imagePath"); // Print the image path
         String imageUrl = 'https://$apiUrl$imagePath';
-        sendImageCallback(imageUrl,
-            isImage: true); // Optionally send it as a message
+        sendImageCallback(imageUrl); // Optionally send it as a message
         Navigator.pop(context); // Return to the previous screen
       });
     } else {
