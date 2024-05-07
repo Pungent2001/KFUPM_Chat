@@ -28,7 +28,7 @@ getSession() async {
 Future<bool?> setApiUrl() async {
   SharedPreferences.getInstance().then((prefs) {
     // Global Initiator for the API URL, has to be run on launch, and updated if the backend devs change the URL
-    prefs.setString('apiURL', 'wombat-star-tightly.ngrok-free.app');
+    prefs.setString('apiURL', 'endless-pet-kangaroo.ngrok-free.app');
     print("###########api url set..");
     return true;
   });
