@@ -13,6 +13,10 @@ dependencies:
   http: ^1.2.1
   shared_preferences: ^2.2.2
   web_socket_channel: ^2.4.4
+  intl: ^0.17.0
+  dio: ^4.0.0
+  image_picker: ^0.8.4+4
+  permission_handler: ^10.3.0
 
 dev_dependencies:
   flutter_test:
