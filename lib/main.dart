@@ -61,24 +61,6 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  // Future<void> getData(sessionToken, sessionID) async {
-  //   print("csrftoken=$sessionToken; sessionid=$sessionID");
-  //   String apiLink = await getApiUrl() ?? '';
-  //   final url = 'https://$apiLink/api/getid/';
-  //   final response = await http.get(Uri.parse(url),
-  //       headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'});
-
-  //   if (response.statusCode == 200) {
-  //     // If the server returns a 200 OK response, parse the JSON
-  //     final jsonData = jsonDecode(response.body);
-  //     print('JSON Data: $jsonData');
-  //     // Handle the JSON data as needed
-  //   } else {
-  //     // If the server returns an error response, throw an exception
-  //     throw Exception('Failed to load data');
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

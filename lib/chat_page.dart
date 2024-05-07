@@ -137,23 +137,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  // void _sendMessage(String text, {bool isImage = false}) {
-  //   if (text.isNotEmpty) {
-  //     var now = DateTime.now();
-  //     String formattedTime = DateFormat('yyyy-MM-dd – kk:mm').format(now);
-
-  //     widget.channel.sink.add(json.encode({
-  //       'message': text,
-  //       'username': _username,
-  //       'room': widget.channelId.toString(),
-  //       'time': formattedTime,
-  //       'isImage': isImage,
-  //     }));
-
-  //     _textController.clear();
-  //   }
-  // }
-
   void _uploadImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -262,55 +245,6 @@ class _ChatPageState extends State<ChatPage> {
                     );
                   },
                 );
-
-                // return ListView.builder(
-                //   reverse: true,
-                //   itemCount: _messages.length,
-                //   itemBuilder: (context, index) {
-                //     bool isSentByMe = _messages[index]['username'] == _username;
-                //     bool isImageMessage = _messages[index]['isImage'];
-                //     return Align(
-                //       alignment: isSentByMe
-                //           ? Alignment.centerRight
-                //           : Alignment.centerLeft,
-                //       child: Container(
-                //         margin: EdgeInsets.symmetric(
-                //             horizontal: 15.0, vertical: 5.0),
-                //         padding: EdgeInsets.symmetric(
-                //             horizontal: 10.0, vertical: 10.0),
-                //         decoration: BoxDecoration(
-                //           color: isSentByMe
-                //               ? theme.colorScheme.secondaryContainer
-                //               : theme.colorScheme.tertiaryContainer,
-                //           borderRadius: BorderRadius.circular(20),
-                //         ),
-                //         child: isImageMessage
-                //             ? Image.network(_messages[index]['message'])
-                //             : Column(
-                //                 crossAxisAlignment: isSentByMe
-                //                     ? CrossAxisAlignment.end
-                //                     : CrossAxisAlignment.start,
-                //                 children: [
-                //                   Text(
-                //                     _messages[index]['username'],
-                //                     style: TextStyle(
-                //                         fontSize: 12,
-                //                         fontWeight: FontWeight.bold),
-                //                   ),
-                //                   Text(
-                //                     _messages[index]['message'],
-                //                     style: TextStyle(fontSize: 16),
-                //                   ),
-                //                   Text(
-                //                     _messages[index]['time'].toString(),
-                //                     style: TextStyle(fontSize: 12),
-                //                   ),
-                //                 ],
-                //               ),
-                //       ),
-                //     );
-                //   },
-                // );
               },
             ),
           ),
