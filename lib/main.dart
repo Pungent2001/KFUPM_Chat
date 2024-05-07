@@ -223,7 +223,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       }),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       // Assuming the server returns a successful response
       showDialog(
         context: context,
