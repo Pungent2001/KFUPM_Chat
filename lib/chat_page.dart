@@ -29,11 +29,38 @@ class _ChatPageState extends State<ChatPage> {
   final _textController = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
   String _username = '';
+  late String _apiUrl; // Will hold the fetched API URL
 
   @override
   void initState() {
     super.initState();
-    _loadUsername();
+    _fetchApiUrl().then((url) {
+      if (mounted) {
+        setState(() {
+          _apiUrl = "https://$url";
+          print("initiated url:");
+          print(url);
+        });
+      }
+    });
+  }
+
+  Future<String> _fetchApiUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    print("fetched api url:");
+    final apiUrl = await getApiUrl();
+    return apiUrl ?? 'default-api-url';
+  }
+
+  bool _isImageUrl(String? message) {
+    return message != null &&
+        (message.startsWith(_apiUrl) &&
+            (message.endsWith('.png') || message.endsWith('.jpg')));
+  }
+
+  Future<String> _getApiUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('apiURL') ?? 'default-api-url';
   }
 
   void _loadUsername() async {
@@ -78,13 +105,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  Future<bool> _isImageUrl(String? message) async {
-    final apiUrl = await getApiUrl();
-    return message != null &&
-        (message.startsWith(apiUrl) &&
-            (message.endsWith('.png') || message.endsWith('.jpg')));
-  }
-
   @override
   void dispose() {
     widget.channel.sink.close();
@@ -110,16 +130,21 @@ class _ChatPageState extends State<ChatPage> {
                 if (snapshot.hasData) {
                   final Map<String, dynamic> data =
                       json.decode(snapshot.data.toString());
-                  _messages.insert(0, data);
+                  // Check if the message is an image
+                  bool isImage = _isImageUrl(data['message']);
+                  _messages.insert(0, {
+                    'username': data['username'] ?? 'Unknown',
+                    'message': data['message'],
+                    'time': data['time'] ?? '',
+                    'isImage': isImage,
+                  });
                 }
                 return ListView.builder(
                   reverse: true,
                   itemCount: _messages.length,
                   itemBuilder: (context, index) {
                     bool isSentByMe = _messages[index]['username'] == _username;
-                    bool isImageMessage =
-                        _messages[index].containsKey('isImage') &&
-                            _messages[index]['isImage'];
+                    bool isImageMessage = _messages[index]['isImage'];
                     return Align(
                       alignment: isSentByMe
                           ? Alignment.centerRight
