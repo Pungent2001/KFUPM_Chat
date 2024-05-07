@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:kfupm_chat/image_upload_page.dart';
+import 'package:kfupm_chat/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:intl/intl.dart';
@@ -75,6 +76,13 @@ class _ChatPageState extends State<ChatPage> {
         ),
       );
     }
+  }
+
+  Future<bool> _isImageUrl(String? message) async {
+    final apiUrl = await getApiUrl();
+    return message != null &&
+        (message.startsWith(apiUrl) &&
+            (message.endsWith('.png') || message.endsWith('.jpg')));
   }
 
   @override

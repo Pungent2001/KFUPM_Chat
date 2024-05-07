@@ -19,8 +19,6 @@ class ImageUploadPage extends StatelessWidget {
   }) : super(key: key);
 
   void _sendImage(BuildContext context) async {
-    final String apiLink =
-        'your-api-url.com'; // Substitute with your actual API URL
     final List<String?> sessionDetails = await getSession();
     final apiUrl = await getApiUrl();
     final String? sessionToken = sessionDetails[0] ?? 'default-token';
@@ -41,9 +39,11 @@ class ImageUploadPage extends StatelessWidget {
       streamedResponse.stream.transform(utf8.decoder).listen((value) {
         var data = jsonDecode(value);
         String imagePath = data[
-            'path']; // Assuming 'path' is the key for the image URL in the JSON response
-        print("Uploaded image path: $imagePath"); // Print the image path
-        sendImageCallback(imagePath,
+            'imagePath']; // Assuming 'path' is the key for the image URL in the JSON response
+        print(
+            "Uploaded image path: https://$apiUrl$imagePath"); // Print the image path
+        String imageUrl = 'https://$apiUrl$imagePath';
+        sendImageCallback(imageUrl,
             isImage: true); // Optionally send it as a message
         Navigator.pop(context); // Return to the previous screen
       });
