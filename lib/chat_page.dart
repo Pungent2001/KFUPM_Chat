@@ -205,6 +205,7 @@ class _ChatPageState extends State<ChatPage> {
                     final message = _messages[index];
                     bool isImageMessage = _isImageUrl(message['message']);
                     bool isSentByMe = _messages[index]['username'] == _username;
+                    bool isAI = _messages[index]['username'] == 'AI';
                     return Align(
                       alignment: isSentByMe
                           ? Alignment.centerRight
@@ -217,7 +218,10 @@ class _ChatPageState extends State<ChatPage> {
                         decoration: BoxDecoration(
                           color: isSentByMe
                               ? theme.colorScheme.secondaryContainer
-                              : theme.colorScheme.tertiaryContainer,
+                              : isAI
+                                  ? Color.fromARGB(255, 173, 104,
+                                      185) // Change color to purple if isAI is true
+                                  : theme.colorScheme.tertiaryContainer,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: isImageMessage
