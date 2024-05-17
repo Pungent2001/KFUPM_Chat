@@ -65,6 +65,7 @@ class HomePage extends StatelessWidget {
   bool _isUserLoggedIn() {
     getSession().then((value) {
       if (value[0] != null) {
+        print("user is logged in");
         return true;
       } else {
         return false;
@@ -266,8 +267,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
-                SignInPage()
-                    .logIn(_emailController.text, _passwordController.text);
+                SignInPage().logIn(
+                    context, _emailController.text, _passwordController.text);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -318,32 +319,119 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
 class SignInPage extends StatelessWidget {
   const SignInPage({Key? key}) : super(key: key);
-  Future<List<String?>> logIn(username, password) async {
-    print("username: $username");
-    print("password: $password");
-    setApiUrl();
-    print(getApiUrl() ?? "url not found");
-    final String apiLink = await getApiUrl() ?? '';
-    final url = 'https://$apiLink/api/login/';
-    final response = await http.post(Uri.parse(url), headers: {}, body: {
-      'username': username,
-      'password': password,
-    });
-    // print(response.body);
-    final csrfToken =
-        response.headers['set-cookie']?.split(';')[0].split('=')[1];
-    final sessionId = response.headers['set-cookie']
-        ?.split(';')[4]
-        .split(',')[1]
-        .split('=')[1];
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('username', username); // Save the username
-    setSession(csrfToken, sessionId);
+  // Future<List<String?>> logIn(username, password) async {
+  //   print("username: $username");
+  //   print("password: $password");
+  //   setApiUrl();
+  //   print(getApiUrl() ?? "url not found");
+  //   final String apiLink = await getApiUrl() ?? '';
+  //   final url = 'https://$apiLink/api/login/';
+  //   final response = await http.post(Uri.parse(url), headers: {}, body: {
+  //     'username': username,
+  //     'password': password,
+  //   });
+  //   //check if the response is successful, if its unsucessful show a dialog box with an error
 
-    print(response.headers);
-    print('#######CSRF Token: $csrfToken');
-    print('#######Session-id= $sessionId');
-    return [csrfToken, sessionId];
+  // // print(response.body);
+  // final csrfToken =
+  //     response.headers['set-cookie']?.split(';')[0].split('=')[1];
+  // final sessionId = response.headers['set-cookie']
+  //     ?.split(';')[4]
+  //     .split(',')[1]
+  //     .split('=')[1];
+  // SharedPreferences prefs = await SharedPreferences.getInstance();
+  // prefs.setString('username', username); // Save the username
+  // setSession(csrfToken, sessionId);
+
+  //   print(response.headers);
+  //   print('#######CSRF Token: $csrfToken');
+  //   print('#######Session-id= $sessionId');
+  //   return [csrfToken, sessionId];
+  // }
+  Future<void> logIn(
+      BuildContext context, String username, String password) async {
+    try {
+      setApiUrl();
+      final String apiLink = await getApiUrl() ?? '';
+      final apiUrl = 'https://$apiLink/api/login/';
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: {'username': username, 'password': password},
+      );
+
+      if (response.statusCode == 200) {
+        // Assume the login is successful and navigate to the next page
+        // print(response.body);
+        final csrfToken =
+            response.headers['set-cookie']?.split(';')[0].split('=')[1];
+        final sessionId = response.headers['set-cookie']
+            ?.split(';')[4]
+            .split(',')[1]
+            .split('=')[1];
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('username', username); // Save the username
+        setSession(csrfToken, sessionId);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GroupPage()),
+        );
+      } else if (response.statusCode == 400) {
+        // If unauthorized, show error dialog and allow retry
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Login Failed'),
+              content: Text('Invalid username or password.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(); // Dismiss the dialog and allow retry
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Handle other statuses or general error
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text('An unexpected error occurred. Please try again.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // Handle any errors that occur during the HTTP request
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Network Error'),
+            content: Text(
+                'Unable to connect. Please check your network connection and try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -401,12 +489,12 @@ class SignInPage extends StatelessWidget {
                 print('Password: $password');
                 // Call the logIn function with the username and password
                 setSession("", "");
-                await logIn(username, password);
+                await logIn(context, username, password);
                 // Navigate to the next screen after login
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const GroupPage()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => const GroupPage()),
+                // );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,

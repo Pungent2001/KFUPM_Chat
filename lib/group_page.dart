@@ -36,7 +36,7 @@ class _GroupPageState extends State<GroupPage> {
             setSession("", "");
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SignInPage()),
+              MaterialPageRoute(builder: (context) => const HomePage()),
             );
           },
         ),
