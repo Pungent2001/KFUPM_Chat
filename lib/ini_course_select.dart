@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:kfupm_chat/group_page.dart';
 import 'package:kfupm_chat/main.dart';
 
 class InitialCourseSelectionPage extends StatefulWidget {
@@ -82,7 +83,10 @@ class _CourseSelectionPageState extends State<InitialCourseSelectionPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Dismiss alert dialog
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const GroupPage()),
+                ); // Dismiss alert dialog
               },
             ),
           ],

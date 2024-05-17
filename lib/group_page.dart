@@ -29,6 +29,17 @@ class _GroupPageState extends State<GroupPage> {
 
     return Scaffold(
       appBar: AppBar(
+        //change the back button icon to be a power icon, and if its pressed, set the session to be an empty string with setSession('') and navigate to the login page
+        leading: IconButton(
+          icon: Icon(Icons.power_settings_new),
+          onPressed: () {
+            setSession("", "");
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SignInPage()),
+            );
+          },
+        ),
         title: const Text('Groups'),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,

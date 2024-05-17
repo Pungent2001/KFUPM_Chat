@@ -62,6 +62,17 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  bool _isUserLoggedIn() {
+    getSession().then((value) {
+      if (value[0] != null) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -82,16 +93,28 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SignInPage()),
-                );
+                //if the token is not null, then the user is already logged in, so take them to the groups page
+
+                if (_isUserLoggedIn()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GroupPage()),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignInPage()),
+                  );
+                }
+                ;
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
-              child: const Text('Sign In'),
+              child: _isUserLoggedIn()
+                  ? const Text('Go to Groups')
+                  : const Text('Sign In'),
             ),
             const SizedBox(height: 20),
 
