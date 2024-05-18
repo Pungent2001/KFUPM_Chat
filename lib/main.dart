@@ -225,6 +225,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   void _updateRegisterButton() {
     setState(() {
+      //add @kfupm email validation
+      //add password validation
       _registerButtonEnabled = _emailController.text.isNotEmpty &&
           _passwordController.text.isNotEmpty &&
           _confirmPasswordController.text.isNotEmpty &&
@@ -267,7 +269,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
-                SignInPage().logIn(
+                SignInPage().PostSignup(
                     context, _emailController.text, _passwordController.text);
                 Navigator.push(
                   context,
@@ -348,20 +350,23 @@ class SignInPage extends StatelessWidget {
   //   print('#######Session-id= $sessionId');
   //   return [csrfToken, sessionId];
   // }
-  Future<void> logIn(
+  Future<void> PostSignup(
       BuildContext context, String username, String password) async {
     try {
       setApiUrl();
       final String apiLink = await getApiUrl() ?? '';
       final apiUrl = 'https://$apiLink/api/login/';
+      print("sent username: $username");
+      print("sent password: $password");
+      print("api url: $apiLink");
       final response = await http.post(
         Uri.parse(apiUrl),
         body: {'username': username, 'password': password},
       );
-
+      print(response.statusCode);
       if (response.statusCode == 200) {
         // Assume the login is successful and navigate to the next page
-        // print(response.body);
+        print(response.body);
         final csrfToken =
             response.headers['set-cookie']?.split(';')[0].split('=')[1];
         final sessionId = response.headers['set-cookie']
@@ -371,10 +376,10 @@ class SignInPage extends StatelessWidget {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('username', username); // Save the username
         setSession(csrfToken, sessionId);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const GroupPage()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const GroupPage()),
+        // );
       } else if (response.statusCode == 400) {
         // If unauthorized, show error dialog and allow retry
         showDialog(
@@ -415,6 +420,97 @@ class SignInPage extends StatelessWidget {
       }
     } catch (e) {
       // Handle any errors that occur during the HTTP request
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Network Error'),
+            content: Text(
+                'Unable to connect. Please check your network connection and try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> logIn(
+      BuildContext context, String username, String password) async {
+    try {
+      setApiUrl();
+      final String apiLink = await getApiUrl() ?? '';
+      final apiUrl = 'https://$apiLink/api/login/';
+      print("sent username: $username");
+      print("sent password: $password");
+      print("api url: $apiLink");
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: {'username': username, 'password': password},
+      );
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        // Assume the login is successful and navigate to the next page
+        print(response.body);
+        final csrfToken =
+            response.headers['set-cookie']?.split(';')[0].split('=')[1];
+        final sessionId = response.headers['set-cookie']
+            ?.split(';')[4]
+            .split(',')[1]
+            .split('=')[1];
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('username', username); // Save the username
+        setSession(csrfToken, sessionId);
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const GroupPage()),
+        // );
+      } else if (response.statusCode == 400) {
+        // If unauthorized, show error dialog and allow retry
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Login Failed'),
+              content: Text('Invalid username or password.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(); // Dismiss the dialog and allow retry
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Handle other statuses or general error
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text('An unexpected error occurred. Please try again.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // Handle any errors that occur during the HTTP request
+      print('Error: $e');
       showDialog(
         context: context,
         builder: (BuildContext context) {
