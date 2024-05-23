@@ -95,7 +95,7 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 //if the token is not null, then the user is already logged in, so take them to the groups page
-
+                print("is user logged in: ${_isUserLoggedIn()}");
                 if (_isUserLoggedIn()) {
                   Navigator.push(
                     context,
@@ -154,6 +154,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   bool _registerButtonEnabled = false;
 
   @override
@@ -173,12 +174,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
               style: TextStyle(color: theme.colorScheme.onSurface),
             ),
             const SizedBox(height: 20),
+            //add an extra text field for email
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  labelStyle: TextStyle(color: theme.colorScheme.onSurface),
+                ),
+                obscureText: false,
+                onChanged: (_) => _updateRegisterButton(),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'Username',
+                  labelText: 'Email@kfupm.edu.sa',
                   labelStyle: TextStyle(color: theme.colorScheme.onSurface),
                 ),
                 onChanged: (_) => _updateRegisterButton(),
@@ -189,7 +203,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               child: TextField(
                 controller: _passwordController,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Password (8 characters, 1 letter, 1 number)',
                   labelStyle: TextStyle(color: theme.colorScheme.onSurface),
                 ),
                 obscureText: true,
@@ -225,9 +239,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   void _updateRegisterButton() {
     setState(() {
-      //add @kfupm email validation
-      //add password validation
+      //add email validation, emails must end with @kfupm.edu.sa
+
+      //add password validation, passwords may only be longer than 8 characters
+      //and must contain at least one number and one letter
+      // _emailController.text.endsWith('@kfupm.edu.sa') &&
+      //         _passwordController.text.length >= 8 &&
+      //         _passwordController.text.contains(RegExp(r'[0-9]')) &&
+      //         _passwordController.text.contains(RegExp(r'[a-zA-Z]')) &&
+      //         _confirmPasswordController.text == _passwordController.text
+      //     ? _registerButtonEnabled = true
+      //     : _registerButtonEnabled = false;
+
       _registerButtonEnabled = _emailController.text.isNotEmpty &&
+          _emailController.text.endsWith('@kfupm.edu.sa') &&
+          _passwordController.text.length >= 8 &&
+          _passwordController.text.contains(RegExp(r'[0-9]')) &&
+          _passwordController.text.contains(RegExp(r'[a-zA-Z]')) &&
           _passwordController.text.isNotEmpty &&
           _confirmPasswordController.text.isNotEmpty &&
           _passwordController.text == _confirmPasswordController.text;
@@ -235,6 +263,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _register() async {
+    setApiUrl();
     final apiUrl = await getApiUrl();
     final url = 'https://$apiUrl/api/signup/';
 
@@ -244,13 +273,40 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "Content-Type": "application/json",
       },
       body: jsonEncode({
-        "username": _emailController.text,
+        "username": _usernameController.text,
         "password1": _passwordController.text,
         "password2": _confirmPasswordController.text,
       }),
     );
+    setApiUrl();
+    final String apiLink = await getApiUrl() ?? '';
+    final loginApiUrl = 'https://$apiLink/api/login/';
+    print("sent username: $_usernameController");
+    print("sent password: $_passwordController");
+    print("api url: $apiLink");
+    final loginResponse = await http.post(
+      Uri.parse(loginApiUrl),
+      body: {
+        'username': _usernameController.text,
+        'password': _passwordController.text
+      },
+    );
+    print(loginResponse.statusCode);
+    ;
 
     if (response.statusCode == 201) {
+      // Assume the login is successful and navigate to the next page
+      print(loginResponse.body);
+      final csrfToken =
+          loginResponse.headers['set-cookie']?.split(';')[0].split('=')[1];
+      final sessionId = loginResponse.headers['set-cookie']
+          ?.split(';')[4]
+          .split(',')[1]
+          .split('=')[1];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString(
+          'username', _usernameController.text); // Save the username
+      setSession(csrfToken, sessionId);
       // Assuming the server returns a successful response
       showDialog(
         context: context,
@@ -269,8 +325,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
-                SignInPage().PostSignup(
-                    context, _emailController.text, _passwordController.text);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -316,6 +370,154 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
       );
     }
+  }
+}
+
+class InitialCourseSelectionPage extends StatefulWidget {
+  @override
+  _CourseSelectionPageState createState() => _CourseSelectionPageState();
+}
+
+class _CourseSelectionPageState extends State<InitialCourseSelectionPage> {
+  late Future<List<dynamic>> _coursesFuture;
+  Map<int, bool> _enrollments = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _coursesFuture = _fetchCourses(); // Assign the Future here
+  }
+
+  Future<List<dynamic>> _fetchCourses() async {
+    final apiUrl = await getApiUrl();
+    final url = 'https://$apiUrl/api/getcourses';
+    var session = await getSession();
+    String sessionToken = session[0];
+    String sessionID = session[1];
+    http.Response response = await http.get(
+      Uri.parse(url),
+      headers: {"Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID'},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> courses = jsonDecode(response.body);
+      for (var course in courses) {
+        _enrollments[course['group_id']] =
+            false; // Preset all to unenrolled initially
+      }
+      return courses; // Return the fetched courses.
+    } else {
+      // Handle error or no courses found scenario
+      print('Failed to fetch courses');
+      throw Exception('Failed to fetch courses');
+    }
+  }
+
+  Future<void> _enroll() async {
+    final apiUrl = await getApiUrl();
+    final url = 'https://$apiUrl/api/enroll/';
+
+    // Convert selected group IDs to a list of strings
+    List<String> enrolledGroups = _enrollments.entries
+        .where((entry) => entry.value == true)
+        .map((entry) => entry.key.toString())
+        .toList();
+    print("#####Enrolled Groups: $enrolledGroups");
+    var session = await getSession();
+    String sessionToken = session[0];
+    String sessionID = session[1];
+    http.Response response = await http.post(
+      Uri.parse(url),
+      headers: {
+        "Cookie": 'csrftoken=$sessionToken; sessionid=$sessionID',
+        "Content-Type": "application/json",
+        "X-CSRFToken": sessionToken
+      },
+      body: jsonEncode({
+        "enrolled_groups": enrolledGroups,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Handle successful enrollment
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Enrollment Successful'),
+          content: Text('You have been enrolled successfully.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const GroupPage()),
+                ); // Dismiss alert dialog
+              },
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Handle errors
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Enrollment Failed'),
+          content: Text('Failed to enroll in courses. Please try again.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss alert dialog
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Select Your Courses'),
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: _coursesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final courses = snapshot.data!;
+            return ListView(
+              children: courses.map((course) {
+                return CheckboxListTile(
+                  title: Text(course['group_name']),
+                  subtitle: Text(course['group_description']),
+                  value: _enrollments[course['group_id']],
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _enrollments[course['group_id']] = value!;
+                    });
+                  },
+                );
+              }).toList(),
+            );
+          }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _enroll,
+        tooltip: 'Enroll',
+        child: Icon(Icons.save),
+      ),
+    );
   }
 }
 
@@ -376,10 +578,10 @@ class SignInPage extends StatelessWidget {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('username', username); // Save the username
         setSession(csrfToken, sessionId);
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => const GroupPage()),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => InitialCourseSelectionPage()),
+        );
       } else if (response.statusCode == 400) {
         // If unauthorized, show error dialog and allow retry
         showDialog(
@@ -466,10 +668,10 @@ class SignInPage extends StatelessWidget {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('username', username); // Save the username
         setSession(csrfToken, sessionId);
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => const GroupPage()),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GroupPage()),
+        );
       } else if (response.statusCode == 400) {
         // If unauthorized, show error dialog and allow retry
         showDialog(

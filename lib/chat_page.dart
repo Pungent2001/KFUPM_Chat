@@ -125,6 +125,7 @@ class _ChatPageState extends State<ChatPage> {
     if (message.isNotEmpty) {
       String username = "YourUsername"; // Retrieve the actual username
       String time = DateTime.now().toIso8601String(); // Get current time
+      print("the time is: $time");
 
       widget.channel.sink.add(json.encode({
         'message': message,
